@@ -1,0 +1,26 @@
+{
+  "name": "nyan-cat",
+  "version": "0.0.1",
+  "description": "nyan cat test page",
+  "main": "index.html",
+  "scripts": {
+    "test": "npm run"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/rogerwesterbo/nyan-cat.git"
+  },
+  "keywords": [
+    "nyan",
+    "cat"
+  ],
+  "author": "Roger Westerbø and others",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/rogerwesterbo/nyan-cat/issues"
+  },
+  "homepage": "https://github.com/rogerwesterbo/nyan-cat#readme",
+  "devDependencies": {
+    "express": "^4.19.2"
+  }
+}
