@@ -4,7 +4,7 @@
   "description": "nyan cat test page",
   "main": "index.html",
   "scripts": {
-    "test": "npm run"
+    "start": "node server.js"
   },
   "repository": {
     "type": "git",
