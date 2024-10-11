@@ -302,7 +302,12 @@ function create_cluster() {
     Port forward the ArgoCD server to access the UI:
     "
     echo -e "$white
+    https (self-signed certificate):
     kubectl port-forward -n argocd services/argocd-server 58080:443
+    "
+    echo -e "$white
+    http (insecure):
+    kubectl port-forward -n argocd services/argocd-server 58080:80
     "
     echo -e "$yellow
     Open the ArgoCD UI in your browser: http://localhost:58080

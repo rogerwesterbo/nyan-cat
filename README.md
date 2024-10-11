@@ -39,3 +39,9 @@ docker buildx build --platform=linux/amd64,linux/arm64,linux/arm/v7 -t rogerwest
 # Create a kubernetes cluster
 
 [Read this ./docs/k8s.md](./docs/k8s.md)
+
+or run the script
+
+```bash
+./scripts/create-cluster.sh
+```
