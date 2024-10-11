@@ -42,20 +42,20 @@ If `condition met` all good :white_check_mark:
 ### Getting ArgoCD initial admin passord:
 
 ```bash
-kubectl get secrets -n argocd argocd-secret -o json | jq -r '.data."admin.password"' | base64 -d
+kubectl get secrets -n argocd argocd-initial-admin-secret -o json | jq -r '.data.password' | base64 -d
 ```
 
-Shows something like this:
+This could result in something like this:
 
 ```bash
-kubectl get secrets -n argocd argocd-initial-admin-secret -o json | jq -r '.data.password' | base64 -d
-
 nr-p1tqyaMkUmB6T%
 ```
 
 :exclamation: do not copy the `%` at the end!
 
 ### Port forward to argocd webpage:
+
+Open a new terminal and:
 
 ```bash
 kubectl port-forward -n argocd services/argocd-server 58080:443
@@ -83,6 +83,28 @@ kubectl wait --namespace ingress-nginx \
 ```
 
 If `condition met` all good :white_check_mark:
+
+# Install Nyan-cat test app with argocd application:
+
+1. reuse portforward from previous and to to http://localhost:58080
+   - or go to section "Port forward to argocd webpage
+2. click the "+ NEW APP" or the "Create application" in the middle of the start page
+3. inputs:
+   - Application name: "nyan-cat"
+   - Project name -> select "default"
+   - Sync policy -> Automatic
+   - Check off
+     - :white_check_mark: Prune resources
+     - :white_check_mark: Self heal
+     - :white_check_mark: Set default finalizer
+     - :white_check_mark: Auto-Create Namespace
+   - Repository url: https://github.com/rogerwesterbo/nyan-cat.git
+   - Path: charts/nyan-cat
+   - Cluster Url -> "https://kubernetes.default.svc"
+   - Namespace: "nyan-cat"
+4. Click "create" button on top
+5. Application will be create, and argocd will install the helm chart
+6. :white_check_mark:
 
 # Install Nyan-cat test app with helm
 
