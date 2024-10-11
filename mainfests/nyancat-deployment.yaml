@@ -1,0 +1,41 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nyancatwebpage
+  namespace: nyancat
+spec:
+  selector:
+    matchLabels:
+      webapp: nyancat
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        webapp: nyancat
+
+    spec:
+      containers:
+        - name: nyancat
+          image: rogerwesterbo/nyan-cat:0.0.6
+          volumeMounts:
+            - name: temp
+              mountPath: /tmp
+
+          resources:
+            requests:
+              memory: '64Mi'
+              cpu: '250m'
+            limits:
+              memory: '128Mi'
+              cpu: '500m'
+          ports:
+            - containerPort: 8080
+          securityContext:
+            runAsUser: 1000
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop:
+                - ALL
+      volumes:
+        - name: temp
+          emptyDir: {}

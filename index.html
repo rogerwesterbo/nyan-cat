@@ -1,18 +1,20 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en-US">
   <head>
     <meta charset="UTF-8" />
     <title>Nyan Cat - HTML5+CSS3+JS</title>
 
-    <link rel="icon" href="favicon.ico" />
-    <link rel="stylesheet" href="./css/nyan.css" />
+    <link rel="icon" href="/favicon.ico" />
+    <link rel="stylesheet" type="text/css" href="/css/nyan.css" />
   </head>
   <body>
-    <audio autoplay controls>
-      <source src="audio/nyan-cat.ogg" type="audio/ogg" />
-      <source src="audio/nyan-cat.mp3" type="audio/mpeg" />
-      Your browser does not support the audio element.
-    </audio>
+    <div class="audiocontrols">
+      <audio autoplay controls>
+        <source src="audio/nyan-cat.ogg" type="audio/ogg" />
+        <source src="audio/nyan-cat.mp3" type="audio/mpeg" />
+        Your browser does not support the audio element.
+      </audio>
+    </div>
     <div class="sparks-combo">
       <div class="spark"></div>
       <div class="spark"></div>
@@ -40,6 +42,6 @@
       </div>
     </div>
 
-    <script src="js/nyan.js"></script>
+    <script type="text/javascript" src="/js/nyan.js"></script>
   </body>
 </html>

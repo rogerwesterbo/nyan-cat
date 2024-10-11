@@ -4,7 +4,9 @@
   "description": "nyan cat test page",
   "main": "index.html",
   "scripts": {
-    "start": "node server.js"
+    "start": "node server.js",
+    "format": "prettier 'src/**/*.{js,jsx,ts,tsx,html,css}' --write",
+    "build:less": "lessc less/nyan.less css/nyan.css"
   },
   "repository": {
     "type": "git",
@@ -21,6 +23,8 @@
   },
   "homepage": "https://github.com/rogerwesterbo/nyan-cat#readme",
   "devDependencies": {
-    "express": "^4.21.1"
+    "express": "^4.21.1",
+    "less": "^4.2.0",
+    "prettier": "^3.3.3"
   }
 }

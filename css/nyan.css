@@ -14,7 +14,13 @@ body {
   overflow: hidden;
 }
 body {
-  font: 13px/1.4 Helvetica, arial, freesans, clean, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol";
+  font: 13px/1.4 Helvetica, arial, freesans, clean, sans-serif, 'Segoe UI Emoji', 'Segoe UI Symbol';
+}
+.audiocontrols {
+  top: 10px;
+  right: 10px;
+  position: absolute;
+  z-index: 10;
 }
 .repo {
   position: absolute;
@@ -106,7 +112,10 @@ body {
   background: linear-gradient(black, black) no-repeat, linear-gradient(black, black) no-repeat, linear-gradient(black, black) no-repeat, linear-gradient(black, black) no-repeat;
   background-color: #fc9;
   background-size: 6px 6px;
-  background-position: 0 0, 103px 0, 0 86px, 103px 86px;
+  background-position: 0 0,
+    103px 0,
+    0 86px,
+    103px 86px;
 }
 #pop-tarts-body-cream {
   position: absolute;
@@ -117,7 +126,15 @@ body {
   background: linear-gradient(#f39, #f39) no-repeat, linear-gradient(#f39, #f39) no-repeat, linear-gradient(#f39, #f39) no-repeat, linear-gradient(#f39, #f39) no-repeat, linear-gradient(#f39, #f39) no-repeat, linear-gradient(#f39, #f39) no-repeat, linear-gradient(#f39, #f39) no-repeat, linear-gradient(#f39, #f39) no-repeat, linear-gradient(#f39, #f39) no-repeat, linear-gradient(#f39, #f39) no-repeat;
   background-color: #f9f;
   background-size: 6px 6px;
-  background-position: 12px 12px, 40px 6px, 58px 6px, 35px 29px, 80px 18px, 18px 40px, 40px 46px, 6px 52px, 29px 63px;
+  background-position: 12px 12px,
+    40px 6px,
+    58px 6px,
+    35px 29px,
+    80px 18px,
+    18px 40px,
+    40px 46px,
+    6px 52px,
+    29px 63px;
 }
 #pop-tarts-body-cream:before {
   content: '';
@@ -127,8 +144,22 @@ body {
   left: 0;
   top: 0;
   background: linear-gradient(#fc9, #fc9) no-repeat, linear-gradient(#fc9, #fc9) no-repeat, linear-gradient(#fc9, #fc9) no-repeat, linear-gradient(#fc9, #fc9) no-repeat, linear-gradient(#fc9, #fc9) no-repeat, linear-gradient(#fc9, #fc9) no-repeat, linear-gradient(#fc9, #fc9) no-repeat, linear-gradient(#fc9, #fc9) no-repeat;
-  background-size: 12px 6px, 12px 6px, 12px 6px, 12px 6px, 6px 12px, 6px 12px, 6px 12px, 6px 12px;
-  background-position: 0 0, 85px 0, 0 74px, 85px 74px, 0 0, 91px 0, 0 68px, 91px 68px;
+  background-size: 12px 6px,
+    12px 6px,
+    12px 6px,
+    12px 6px,
+    6px 12px,
+    6px 12px,
+    6px 12px,
+    6px 12px;
+  background-position: 0 0,
+    85px 0,
+    0 74px,
+    85px 74px,
+    0 0,
+    91px 0,
+    0 68px,
+    91px 68px;
 }
 /* pseudo elems */
 #head:before,
