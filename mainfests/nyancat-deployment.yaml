@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
         - name: nyancat
-          image: rogerwesterbo/nyan-cat:0.0.6
+          image: rogerwesterbo/nyan-cat:0.0.7
           volumeMounts:
             - name: temp
               mountPath: /tmp
