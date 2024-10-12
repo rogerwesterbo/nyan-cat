@@ -3,6 +3,15 @@
 ## Prerequisites
 
 - kubectl (https://kubernetes.io/docs/tasks/tools/)
+- docker
+- kind
+- helm
+- jq
+- base64
+
+Optional:
+
+- k9s (https://github.com/derailed/k9s) / lens (https://k8slens.dev/)
 
 ## Create a cluster with 1 controle plane and three workers:
 
@@ -51,7 +60,7 @@ This could result in something like this:
 nr-p1tqyaMkUmB6T%
 ```
 
-:exclamation: do not copy the `%` at the end!
+:exclamation: do not copy the `%` at the end! (could be my zsh installation too ...)
 
 ### Port forward to argocd webpage:
 
