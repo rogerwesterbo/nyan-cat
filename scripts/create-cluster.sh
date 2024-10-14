@@ -144,6 +144,8 @@ function get_cluster_parameter() {
 
     echo "kind: Cluster
 apiVersion: kind.x-k8s.io/v1alpha4
+networking:
+  ipFamily: dual
 nodes:" >> $kind_config_file
 
     controlplane_port_https=$(find_free_port)
@@ -305,10 +307,10 @@ function create_cluster() {
     https (self-signed certificate):
     kubectl port-forward -n argocd services/argocd-server 58080:443
     "
-    echo -e "$white
-    http (insecure):
-    kubectl port-forward -n argocd services/argocd-server 58080:80
-    "
+    # echo -e "$white
+    # http (insecure):
+    # kubectl port-forward -n argocd services/argocd-server 58080:80
+    # "
     echo -e "$yellow
     Open the ArgoCD UI in your browser: http://localhost:58080
     

@@ -5,6 +5,7 @@ metadata:
   labels:
     {{- include "nyan-cat.labels" . | nindent 4 }}
 spec:
+  ipFamilyPolicy: {{ .Values.service.networkfamiliy }}
   type: {{ .Values.service.type }}
   ports:
     - port: {{ .Values.service.port }}
