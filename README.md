@@ -26,14 +26,14 @@ Open your favorite browser with url: http://localhost:8090
 ## Build container
 
 ```bash
-docker build --platform=linux/amd64,linux/arm64,linux/arm/v7 -f Dockerfile -t rogerwesterbo/nyan-cat:<0.0.7> .
+docker build --platform=linux/amd64,linux/arm64,linux/arm/v7 -f Dockerfile -t rogerwesterbo/nyan-cat:<0.0.8> .
 ```
 
 Multi architecture docker build, see this article first: https://unix.stackexchange.com/questions/748633/error-multiple-platforms-feature-is-currently-not-supported-for-docker-driver
 and then:
 
 ```bash
-docker buildx build --platform=linux/amd64,linux/arm64,linux/arm/v7 -t rogerwesterbo/nyan-cat:<0.0.7> --output type=docker .
+docker buildx build --platform=linux/amd64,linux/arm64,linux/arm/v7 -t rogerwesterbo/nyan-cat:<0.0.8> --output type=docker .
 ```
 
 # Create a kubernetes cluster

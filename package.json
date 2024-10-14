@@ -6,7 +6,7 @@
   "scripts": {
     "start": "node server.js",
     "format": "prettier 'src/**/*.{js,jsx,ts,tsx,html,css}' --write",
-    "build:less": "lessc less/nyan.less css/nyan.css"
+    "build:less": "lessc src/less/nyan.less src/css/nyan.css"
   },
   "repository": {
     "type": "git",
