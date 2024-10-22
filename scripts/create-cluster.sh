@@ -19,7 +19,10 @@ install_nginx_controller="yes"
 install_argocd="yes"
 kind_config_path=$(get_abs_filename "$scriptDir/../config/kindconfig.yaml")
 kind_config_template_path=$(get_abs_filename "$scriptDir/../config/kindconfig-template.yaml")
-kind_config_file=$(get_abs_filename "$scriptDir/../config/configkind.yaml")
+kind_config_file=$(get_abs_filename "$scriptDir/../config/configkind-$cluster_name.yaml")
+nyancat_argo_app_yaml=$(get_abs_filename "$scriptDir/../config/nyancat-argo-app.yaml")
+argocd_ingress_yaml=$(get_abs_filename "$scriptDir/../config/argocd-ingress.yaml")
+cluster_info_file=$(get_abs_filename "$scriptDir/../config/clusterinfo-$cluster_name.txt")
 argocd_password=""
 
 declare -a kindk8sversions=(
@@ -70,8 +73,13 @@ function print_help() {
     echo "Syntax: ./create-cluster.sh [create|c|help|h]"
     echo
     echo "options:"
-    echo "  create  alias: c    Create a local cluster with kind and docker"
-    echo "  help    alias: h    Print this Help"
+    echo "  create           alias: c         Create a local cluster with kind and docker"
+    echo "  install-nginx    alias: in        Install Nginx Ingress Controller to current cluster"
+    echo "  install-argocd   alias: ia        Install ArgoCD to current cluster"
+    echo "  install-nyancat  alias: nyan,cat  Install Nyan-cat ArgoCD application"
+    echo "  details          alias: dt        Install Nyan-cat ArgoCD application"
+    echo "  delete           alias: d         Install Nyan-cat ArgoCD application"
+    echo "  help             alias: h         Print this Help"
     echo ""
     echo "dependencies: docker, kind, kubectl, jq, base64 and helm"
     echo ""
@@ -182,8 +190,8 @@ networking:
   ipFamily: dual
 nodes:" >> $kind_config_file
 
-    controlplane_port_https=$(find_free_port)
     controlplane_port_http=$(find_free_port)
+    controlplane_port_https=$(find_free_port)
     for i in $(seq 1 $controlplane_number); do
         echo "  - role: control-plane
     image: $kindk8simage
@@ -236,7 +244,19 @@ nodes:" >> $kind_config_file
     echo -en "$yellow\nInstall ArgoCD?:"
     echo -en "$blue $install_argocd"
 
-    #cat $kind_config_file
+    if [ -f "$cluster_info_file" ]; then
+        truncate -s 0 "$cluster_info_file"
+    fi
+
+    echo "
+Cluster name: $cluster_name
+Controlplane number: $controlplane_number
+Worker number: $worker_number
+Kubernetes version: $kindk8sversion
+Install Nginx ingress controller: $install_nginx_controller
+Install ArgoCD: $install_argocd
+ArgoCD admin GUI portforwarding: kubectl port-forward -n argocd services/argocd-server 58080:443
+ArgoCD admin GUI url: http://localhost:58080" >> $cluster_info_file
 
     echo ""
     echo -e "$yellow\nKind command about to be run:"
@@ -283,11 +303,22 @@ function install_argocd(){
     echo -e "$yellow
     ⏰ Waiting for ArgoCD to be ready
     "
-    sleep 5
+    sleep 7
     (kubectl wait --namespace argocd --for=condition=ready pod --selector=app.kubernetes.io/name=argocd-server --timeout=90s|| 
     { 
         echo -e "$red 
         🛑 Could not install argocd into cluster  ...
+        "
+        die
+    }) & spinner
+
+    echo -e "$yellow
+    Installing ArgoCD Ingress
+    "
+    (kubectl apply -n argocd -f $argocd_ingress_yaml|| 
+    { 
+        echo -e "$red 
+        🛑 Could not install argocd ingress into cluster  ...
         "
         die
     }) & spinner
@@ -311,7 +342,7 @@ function install_nginx_controller(){
     echo -e "$yellow
     ⏰ Waiting for Nginx ingress controller to be ready
     "
-    sleep 5
+    sleep 7
     (kubectl wait --namespace ingress-nginx --for=condition=ready pod --selector=app.kubernetes.io/component=controller --timeout=90s|| 
     { 
         echo -e "$red 
@@ -347,6 +378,10 @@ function create_cluster() {
     if [ "$install_argocd" == "yes" ]; then
         install_argocd
         argocd_password="$(kubectl get secrets -n argocd argocd-initial-admin-secret -o json | jq -r '.data.password' | base64 -d)"
+
+        echo "ArgoCD:"
+        echo "Username: admin"
+        echo "ArgoCD password: $argocd_password" >> $cluster_info_file
     fi
 
     echo -e "$yellow
@@ -363,10 +398,7 @@ function create_cluster() {
     https (self-signed certificate):
     kubectl port-forward -n argocd services/argocd-server 58080:443
     "
-    # echo -e "$white
-    # http (insecure):
-    # kubectl port-forward -n argocd services/argocd-server 58080:80
-    # "
+    
     echo -e "$yellow
     Open the ArgoCD UI in your browser: http://localhost:58080
     
@@ -384,6 +416,37 @@ function create_cluster() {
     To delete cluster, type: $red kind delete cluster --name $cluster_name
     "
     echo -e "$clear"
+
+    install_nyancat=""
+    read -p "Install Nyan-cat ArgoCD application? (default: yes) (y/yes | n/no): " install_nyancat_new
+    if [ "$install_nyancat_new" == "yes" ] || [ "$install_nyancat_new" == "y" ] || [ "$install_nyancat_new" == "" ]; then
+        install_nyancat="yes"
+    else
+        install_nyancat="no"
+    fi
+
+    if [ "$install_nyancat" == "yes" ]; then
+        install_nyancat_application
+    fi
+}
+
+function install_nyancat_application(){
+    echo -e "$yellow
+    Installing Nyan-cat ArgoCD application
+    "
+    (kubectl apply -f $nyancat_argo_app_yaml|| 
+    { 
+        echo -e "$red 
+        🛑 Could not install Nyan-cat ArgoCD application into cluster  ...
+        "
+        die
+    }) & spinner
+
+    echo -e "$yellow
+    ✅ Done installing Nyan-cat ArgoCD application
+    "
+
+    echo "Nyancat argocd application installed: yes" >> $cluster_info_file
 }
 
 function find_free_port() {
@@ -399,6 +462,88 @@ function find_free_port() {
     done
 }
 
+function see_details_of_cluster() {
+    echo -e "$yellow
+    🚀 Cluster details
+    "
+    echo -e "$clear"
+    kubectl cluster-info
+    echo -e "$yellow
+    🚀 Nodes
+    "
+    echo -e "$clear"
+    kubectl get nodes
+    echo -e "$yellow
+    🚀 Pods
+    "
+    echo -e "$clear"
+    kubectl get pods --all-namespaces
+    echo -e "$yellow
+    🚀 Services
+    "
+    echo -e "$clear"
+    kubectl get services --all-namespaces
+    echo -e "$yellow
+    🚀 Ingresses
+    "
+    echo -e "$clear"
+    kubectl get ingresses --all-namespaces
+}
+
+function details_for_cluster() {
+    clusterName=${@: -1}
+
+    if [[ "$#" -lt 2 ]]; then 
+        echo "Missing name of cluster"; 
+        exit 1
+    fi
+
+    if [[ "$#" -gt 2 ]]; then 
+        echo "Too many arguments"; 
+        exit 1
+    fi
+
+    clusters=$(kind get clusters)
+    if ! echo "$clusters" | grep -q "$clusterName"; then
+        echo "Cluster $clusterName not found"
+        exit 1
+    fi
+
+    echo -e "$yellow\nCluster details for $clusterName"
+    cat $cluster_info_file
+
+    echo -e "$yellow\nKind configuration for $clusterName"
+
+    cat $kind_config_file
+}
+
+function delete_cluster() {
+    clusterName=${@: -1}
+
+    if [[ "$#" -lt 2 ]]; then 
+        echo "Missing name of cluster"; 
+        exit 1
+    fi
+
+    if [[ "$#" -gt 2 ]]; then 
+        echo "Too many arguments"; 
+        exit 1
+    fi
+
+    ##kind delete cluster --name $clusterName
+    (kind delete cluster --name $clusterName|| 
+    { 
+        echo -e "$red 
+        🛑 Could not delete cluster with name $clusterName
+        "
+        die
+    }) & spinner
+
+    echo -e "$yellow
+    ✅ Done deleting cluster
+    "
+}
+
 while (($#)); do
    case $1 in
         create|c) # create cluster
@@ -409,12 +554,35 @@ while (($#)); do
             print_logo
             print_help
             exit;;
+        install-nyancat|nyan|cat) # install nyancat application
+            print_logo
+            install_nyancat_application
+            exit;;
+        install-nginx|in) # install nginx controller
+            print_logo
+            install_nginx_controller
+            exit;;
+        install-argocd|ia) # install argocd
+            print_logo
+            install_argocd
+            exit;;
+        details|dt) # see details of cluster
+            print_logo
+            see_details_of_cluster
+            exit;;
+        info|i) # see details of cluster
+            print_logo
+            details_for_cluster $*
+            exit;;
+        delete|d) # see details of cluster
+            print_logo
+            delete_cluster $*
+            exit;;
         *) # Invalid option
             echo -e "$red
             Error: Invalid option
             $clear
             "
-            
             exit;;
    esac
 done

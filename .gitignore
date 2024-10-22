@@ -349,3 +349,5 @@ MigrationBackup/
 # Ionide (cross platform F# VS Code tools) working folder
 .ionide/
 config/configkind.yaml
+config/clusterinfo-*.txt
+config/configkind-*.yaml
