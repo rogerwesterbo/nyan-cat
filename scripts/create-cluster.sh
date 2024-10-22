@@ -22,6 +22,30 @@ kind_config_template_path=$(get_abs_filename "$scriptDir/../config/kindconfig-te
 kind_config_file=$(get_abs_filename "$scriptDir/../config/configkind.yaml")
 argocd_password=""
 
+declare -a kindk8sversions=(
+    "1.31.0;kindest/node:v1.31.0@sha256:53df588e04085fd41ae12de0c3fe4c72f7013bba32a20e7325357a1ac94ba865"
+    "1.30.4;kindest/node:v1.30.4@sha256:976ea815844d5fa93be213437e3ff5754cd599b040946b5cca43ca45c2047114"
+    "1.30.3;kindest/node:v1.30.3@sha256:bf91e1ef2f7d92bb7734b2b896b3dddea98f0496b34d96e37dd5d7df331b7e56"
+    "1.29.8;kindest/node:v1.29.8@sha256:d46b7aa29567e93b27f7531d258c372e829d7224b25e3fc6ffdefed12476d3aa"
+    "1.29.7;kindest/node:v1.29.7@sha256:f70ab5d833fca132a100c1f95490be25d76188b053f49a3c0047ff8812360baf"
+    "1.28.13;kindest/node:v1.28.13@sha256:45d319897776e11167e4698f6b14938eb4d52eb381d9e3d7a9086c16c69a8110"
+    "1.28.12;kindest/node:v1.28.12@sha256:fa0e48b1e83bb8688a5724aa7eebffbd6337abd7909ad089a2700bf08c30c6ea"
+    "1.27.16;kindest/node:v1.27.17@sha256:3fd82731af34efe19cd54ea5c25e882985bafa2c9baefe14f8deab1737d9fabe"
+    "1.26.15;kindest/node:v1.26.15@sha256:1cc15d7b1edd2126ef051e359bf864f37bbcf1568e61be4d2ed1df7a3e87b354"
+    "1.25.16;kindest/node:v1.25.16@sha256:6110314339b3b44d10da7d27881849a87e092124afab5956f2e10ecdb463b025"
+)
+
+firstk8sversion="${kindk8sversions[0]}"
+IFS=';' read -r k8s_version kind_image <<< "$firstk8sversion"
+kindk8simage=$kind_image
+kindk8sversion=$k8s_version
+
+kindk8spossibilities=""
+for version in "${kindk8sversions[@]}"; do
+    IFS=';' read -r k8s_version kind_image <<< "$version"
+    kindk8spossibilities="$kindk8spossibilities $k8s_version,"
+done
+
 function print_logo() {
     echo -e "$blue"
 
@@ -98,51 +122,61 @@ function get_cluster_parameter() {
 
     echo -e "$clear"
     read -p "Enter the cluster name: (default: $cluster_name): " cluster_name_new
-    read -p "Enter number of control planes (default: 1): " controlplane_number_new 
-    read -p "Enter number of workers (default: 0): " worker_number_new 
-
     if [ ! -z $cluster_name_new ]; then
         cluster_name=$cluster_name_new
     fi
 
+    read -p "Enter number of control planes (default: 1): " controlplane_number_new 
     if [ ! -z $controlplane_number_new ]; then
         controlplane_number=$controlplane_number_new
     fi
 
+    read -p "Enter number of workers (default: 0): " worker_number_new 
     if [ ! -z $worker_number_new ]; then
         worker_number=$worker_number_new
     fi
 
-    read -p "Install ArgoCD? (default: yes) (y/yes | n/no): " install_argocd_new
+    read -p "Enter version of kubernetes version (available:$kindk8spossibilities default: $kindk8sversion): " selected_k8s_version 
+    check_k8s_version=""
+    selected_k8s_version=$(echo $selected_k8s_version | tr '[:upper:]' '[:lower:]')
+    if [ ! -z $selected_k8s_version ]; then
+        for version in "${kindk8sversions[@]}"; do
+            IFS=';' read -r k8s_version kind_image <<< "$version"
+            if [ "$selected_k8s_version" == "$k8s_version" ]; then
+                kindk8simage=$kind_image
+                kindk8sversion=$k8s_version
+                check_k8s_version=$k8s_version
+            fi
+        done
 
-    if [ "$install_argocd_new" == "yes" ] || [ "$install_argocd_new" == "y" ] || [ "$install_argocd_new" == "" ]; then
-        install_argocd="yes"
-    else
-        install_argocd="no"
+        if [ -z $check_k8s_version ]; then
+            echo -e "$red
+            🛑 Kubernetes version $selected_k8s_version is not available. Next time, please select from the available versions: $kindk8spossibilities
+            "
+            die
+        fi
     fi
 
     read -p "Install Nginx Controller? (default: yes) (y/yes | n/no): " install_nginx_controller_new
-
     if [ "$install_nginx_controller_new" == "yes" ] || [ "$install_nginx_controller_new" == "y" ] || [ "$install_nginx_controller_new" == "" ]; then
         install_nginx_controller="yes"
     else
         install_nginx_controller="no"
     fi
 
-    echo -e "$yellow
-    How many workers?: $worker_number"
-
-    echo -e "$yellow
-    Install ArgoCD: $install_argocd"
-
-    echo -e "$yellow
-    Install Nginx ingress controller: $install_nginx_controller"
+    read -p "Install ArgoCD? (default: yes) (y/yes | n/no): " install_argocd_new
+    if [ "$install_argocd_new" == "yes" ] || [ "$install_argocd_new" == "y" ] || [ "$install_argocd_new" == "" ]; then
+        install_argocd="yes"
+    else
+        install_argocd="no"
+    fi
 
     if [ -f "$kind_config_file" ]; then
         truncate -s 0 "$kind_config_file"
     fi
 
-    echo "kind: Cluster
+    echo "
+kind: Cluster
 apiVersion: kind.x-k8s.io/v1alpha4
 networking:
   ipFamily: dual
@@ -152,6 +186,7 @@ nodes:" >> $kind_config_file
     controlplane_port_http=$(find_free_port)
     for i in $(seq 1 $controlplane_number); do
         echo "  - role: control-plane
+    image: $kindk8simage
     kubeadmConfigPatches:
       - |
         kind: InitConfiguration
@@ -177,14 +212,35 @@ nodes:" >> $kind_config_file
     if [ $worker_number -gt 0 ]; then
         for i in $(seq 1 $worker_number); do
             echo "  - role: worker" >> $kind_config_file
+            echo "    image: $kindk8simage" >> $kind_config_file
         done
     fi
 
-    cat $kind_config_file
+    echo -e "$yellow\n⏰ Creating Kind cluster with the following configuration"
 
-    echo -e "$yellow
-    kind cluster create $cluster_name --config "$kind_config_file"
-    "
+    echo -en "$yellow\nCluster name:" 
+    echo -en "$blue $cluster_name"
+
+    echo -en "$yellow\nHow many controlplanes?:"
+    echo -en "$blue $controlplane_number"
+
+    echo -en "$yellow\nHow many workers?:"
+    echo -en "$blue $worker_number"
+
+    echo -en "$yellow\nWhich version of kubernetes?:"
+    echo -en "$blue $kindk8sversion"
+
+    echo -en "$yellow\nInstall Nginx ingress controller?:"
+    echo -en "$blue $install_nginx_controller"
+
+    echo -en "$yellow\nInstall ArgoCD?:"
+    echo -en "$blue $install_argocd"
+
+    #cat $kind_config_file
+
+    echo ""
+    echo -e "$yellow\nKind command about to be run:"
+    echo -e "$blue\nkind cluster create $cluster_name --config "$kind_config_file""
     
     echo -e "$clear"
     read -p "Looks ok (n | no | y | yes)? " ok
@@ -196,7 +252,7 @@ nodes:" >> $kind_config_file
             echo "Good  🤌"
             create_cluster
         else
-            echo "🛑 That is bad ... quitting"
+            echo "🛑 Did not notice and confirmation, I need you to confirm with a yes or y 😀 ... quitting"
             exit 0
     fi
 }
