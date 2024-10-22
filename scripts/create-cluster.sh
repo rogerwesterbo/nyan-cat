@@ -312,16 +312,16 @@ function install_argocd(){
         die
     }) & spinner
 
-    echo -e "$yellow
-    Installing ArgoCD Ingress
-    "
-    (kubectl apply -n argocd -f $argocd_ingress_yaml|| 
-    { 
-        echo -e "$red 
-        🛑 Could not install argocd ingress into cluster  ...
-        "
-        die
-    }) & spinner
+    # echo -e "$yellow
+    # Installing ArgoCD Ingress
+    # "
+    # (kubectl apply -n argocd -f $argocd_ingress_yaml|| 
+    # { 
+    #     echo -e "$red 
+    #     🛑 Could not install argocd ingress into cluster  ...
+    #     "
+    #     die
+    # }) & spinner
 
     echo -e "$yellow
     ✅ Done installing ArgoCD"

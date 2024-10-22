@@ -12,10 +12,10 @@ spec:
     - host: localhost
       http:
         paths:
-          - path: /
+          - path: /argocd
             pathType: Prefix
             backend:
               service:
                 name: argocd-server
                 port:
-                  name: https
+                  name: http
