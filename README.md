@@ -45,3 +45,9 @@ or run the script
 ```bash
 ./scripts/create-cluster.sh
 ```
+
+# Need more information about kubernetes?!
+
+[Kubernetes pros and cons](./docs/kubernetes.md)
+
+[The abstractions of k8s](./docs/k8s_abstractions.md)
