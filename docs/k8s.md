@@ -2,6 +2,7 @@
 
 ## Prerequisites
 
+- Linux based terminal, Git bash, MacOs terminal or of course a terminal in a unix-system. Windows command prompt or Powershell does not work!
 - kubectl (https://kubernetes.io/docs/tasks/tools/)
 - docker
 - kind
