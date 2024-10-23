@@ -185,6 +185,7 @@ function get_cluster_parameter() {
         install_argocd="no"
     fi
 
+    kind_config_file=$(get_abs_filename "$scriptDir/../config/configkind-$cluster_name.yaml")
     if [ -f "$kind_config_file" ]; then
         truncate -s 0 "$kind_config_file"
     fi
@@ -249,6 +250,8 @@ nodes:" >> $kind_config_file
 
     echo -en "$yellow\nInstall ArgoCD?:"
     echo -en "$blue $install_argocd"
+
+    cluster_info_file=$(get_abs_filename "$scriptDir/../config/clusterinfo-$cluster_name.txt")
 
     if [ -f "$cluster_info_file" ]; then
         truncate -s 0 "$cluster_info_file"
