@@ -23,6 +23,7 @@ kind_config_file=$(get_abs_filename "$scriptDir/../config/configkind-$cluster_na
 nyancat_argo_app_yaml=$(get_abs_filename "$scriptDir/../config/nyancat-argo-app.yaml")
 argocd_ingress_yaml=$(get_abs_filename "$scriptDir/../config/argocd-ingress.yaml")
 cert_manager_yaml=$(get_abs_filename "$scriptDir/../config/cert-manager.yaml")
+kubeview_yaml=$(get_abs_filename "$scriptDir/../config/kubeview.yaml")
 kube_prometheus_stack_yaml=$(get_abs_filename "$scriptDir/../config/kube_prometheus_stack.yaml")
 cluster_info_file=$(get_abs_filename "$scriptDir/../config/clusterinfo-$cluster_name.txt")
 argocd_password=""
@@ -81,6 +82,7 @@ function print_help() {
     echo "  install-nyancat     alias: nyan,cat  Install Nyan-cat ArgoCD application"
     echo "  install-certmanager alias: icm       Install Cert-manager ArgoCD application"
     echo "  install-prometheus  alias: ip        Install Kube-prometheus-stack ArgoCD application"
+    echo "  install-kubeview    alias: ikv        Install Kubeview ArgoCD application"
     echo "  list                alias: ls        Show kind clusters"
     echo "  details             alias: dt        Show details for a cluster"
     echo "  kubeconfig          alias: kc        Get kubeconfig for a cluster by name"
@@ -631,6 +633,23 @@ function install_kube_prometheus_stack() {
     echo -e "$yellow\nPassword: prom-operator"
 }
 
+function install_kubeview() {
+    (kubectl apply -n argocd -f $kubeview_yaml||
+    { 
+        echo -e "$red 
+        🛑 Could not install kubeview to cluster
+        "
+        die
+    }) & spinner
+
+    echo -e "$yellow
+    ✅ Done installing kubeview
+    "
+
+    echo -e "$yellow\nTo access the kube-prometheus-stack dashboard, type: $red kubectl port-forward -n kubeview pods/<the pod name> 59000:8000"
+    echo -e "$yellow\nOpen the dashboard in your browser: http://localhost:59000"
+}
+
 while (($#)); do
    case $1 in
         create|c) # create cluster
@@ -660,6 +679,10 @@ while (($#)); do
         install-prometheus|ip) # install argocd
             print_logo
             install_kube_prometheus_stack
+            exit;;
+        install-kubeview|ikv) # install argocd
+            print_logo
+            install_kubeview
             exit;;
         details|dt) # see details of cluster
             print_logo
