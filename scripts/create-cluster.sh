@@ -22,6 +22,8 @@ kind_config_template_path=$(get_abs_filename "$scriptDir/../config/kindconfig-te
 kind_config_file=$(get_abs_filename "$scriptDir/../config/configkind-$cluster_name.yaml")
 nyancat_argo_app_yaml=$(get_abs_filename "$scriptDir/../config/nyancat-argo-app.yaml")
 argocd_ingress_yaml=$(get_abs_filename "$scriptDir/../config/argocd-ingress.yaml")
+cert_manager_yaml=$(get_abs_filename "$scriptDir/../config/cert-manager.yaml")
+kube_prometheus_stack_yaml=$(get_abs_filename "$scriptDir/../config/kube_prometheus_stack.yaml")
 cluster_info_file=$(get_abs_filename "$scriptDir/../config/clusterinfo-$cluster_name.txt")
 argocd_password=""
 
@@ -73,13 +75,17 @@ function print_help() {
     echo "Syntax: ./create-cluster.sh [create|c|help|h]"
     echo
     echo "options:"
-    echo "  create           alias: c         Create a local cluster with kind and docker"
-    echo "  install-nginx    alias: in        Install Nginx Ingress Controller to current cluster"
-    echo "  install-argocd   alias: ia        Install ArgoCD to current cluster"
-    echo "  install-nyancat  alias: nyan,cat  Install Nyan-cat ArgoCD application"
-    echo "  details          alias: dt        Install Nyan-cat ArgoCD application"
-    echo "  delete           alias: d         Install Nyan-cat ArgoCD application"
-    echo "  help             alias: h         Print this Help"
+    echo "  create              alias: c         Create a local cluster with kind and docker"
+    echo "  install-nginx       alias: in        Install Nginx Ingress Controller to current cluster"
+    echo "  install-argocd      alias: ia        Install ArgoCD to current cluster"
+    echo "  install-nyancat     alias: nyan,cat  Install Nyan-cat ArgoCD application"
+    echo "  install-certmanager alias: icm       Install Cert-manager ArgoCD application"
+    echo "  install-prometheus  alias: ip        Install Kube-prometheus-stack ArgoCD application"
+    echo "  list                alias: ls        Show kind clusters"
+    echo "  details             alias: dt        Show details for a cluster"
+    echo "  kubeconfig          alias: kc        Get kubeconfig for a cluster by name"
+    echo "  delete              alias: d         Delete a cluster by name"
+    echo "  help                alias: h         Print this Help"
     echo ""
     echo "dependencies: docker, kind, kubectl, jq, base64 and helm"
     echo ""
@@ -530,7 +536,23 @@ function delete_cluster() {
         exit 1
     fi
 
-    ##kind delete cluster --name $clusterName
+    read -p "Sure you want to delete?! (n | no | y | yes)? " ok
+
+    if [ "$ok" == "yes" ] ;then
+            echo -e "$yellow\nDeleting cluster ..."
+        elif [ "$ok" == "y" ]; then
+            echo -e "$yellow\nDeleting cluster ..."
+        elif [ "$ok" == "n" ]; then
+            echo -e "$red\nThat was a close one! Not deleting!"
+            exit 0
+        elif [ "$ok" == "no" ]; then
+            echo -e "$red\nThat was a close one! Not deleting!"
+            exit 0
+        else
+            echo "🛑 Did not notice and confirmation, I need you to confirm with a yes or y 😀 ... quitting"
+            exit 0
+    fi
+
     (kind delete cluster --name $clusterName|| 
     { 
         echo -e "$red 
@@ -542,6 +564,68 @@ function delete_cluster() {
     echo -e "$yellow
     ✅ Done deleting cluster
     "
+}
+
+function list_clusters() {
+    kind get clusters
+}
+
+function get_kubeconfig() {
+    clusterName=${@: -1}
+
+    if [[ "$#" -lt 2 ]]; then 
+        echo "Missing name of cluster"; 
+        exit 1
+    fi
+
+    if [[ "$#" -gt 2 ]]; then 
+        echo "Too many arguments"; 
+        exit 1
+    fi
+
+    echo "$(kind get kubeconfig --name $clusterName)" > kubeconfig-$clusterName.config
+
+    echo -e "$yellow\nKubeconfig saved to kubeconfig-$clusterName.config"
+    echo -e "$clear"
+    echo -e "$yellow\nTo use the kubeconfig, type: $red export KUBECONFIG=kubeconfig-$clusterName.config"
+    echo -e ""
+    echo -e "$yellow\nAnd then you can use $blue kubectl $yellow to interact with the cluster"
+    echo -e ""
+    echo -e "$yellow\nExample: $blue kubectl get nodes"
+}
+
+function install_cert_manager() {
+    (kubectl apply -n argocd -f $cert_manager_yaml||
+    { 
+        echo -e "$red 
+        🛑 Could not install cert-manager to cluster
+        "
+        die
+    }) & spinner
+
+    echo -e "$yellow
+    ✅ Done installing cert-manager
+    "
+}
+
+function install_kube_prometheus_stack() {
+    (kubectl apply -n argocd -f $kube_prometheus_stack_yaml||
+    { 
+        echo -e "$red 
+        🛑 Could not install kube-prometheus-stack to cluster
+        "
+        die
+    }) & spinner
+
+    echo -e "$yellow
+    ✅ Done installing kube-prometheus-stack
+    "
+
+    echo -e "$yellow\nTo access the kube-prometheus-stack dashboard, type: $red kubectl port-forward -n prometheus services/prometheus-grafana 30000:80"
+    echo -e "$yellow\nOpen the dashboard in your browser: http://localhost:30000"
+
+    echo -e "$yellow\nUsername: admin"
+    echo -e "$yellow\nPassword: prom-operator"
 }
 
 while (($#)); do
@@ -566,6 +650,14 @@ while (($#)); do
             print_logo
             install_argocd
             exit;;
+        install-certmanager|icm) # install argocd
+            print_logo
+            install_cert_manager
+            exit;;
+        install-prometheus|ip) # install argocd
+            print_logo
+            install_kube_prometheus_stack
+            exit;;
         details|dt) # see details of cluster
             print_logo
             see_details_of_cluster
@@ -577,6 +669,13 @@ while (($#)); do
         delete|d) # see details of cluster
             print_logo
             delete_cluster $*
+            exit;;
+        list|ls) # see details of cluster
+            print_logo
+            list_clusters $*
+            exit;;
+        kubeconfig|kc) # see details of cluster
+            get_kubeconfig $*
             exit;;
         *) # Invalid option
             echo -e "$red
