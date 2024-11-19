@@ -21,6 +21,7 @@ kind_config_path=$(get_abs_filename "$scriptDir/../config/kindconfig.yaml")
 kind_config_template_path=$(get_abs_filename "$scriptDir/../config/kindconfig-template.yaml")
 kind_config_file=$(get_abs_filename "$scriptDir/../config/configkind-$cluster_name.yaml")
 nyancat_argo_app_yaml=$(get_abs_filename "$scriptDir/../config/nyancat-argo-app.yaml")
+opencost_argo_app_yaml=$(get_abs_filename "$scriptDir/../config/opencost-app.yaml")
 argocd_ingress_yaml=$(get_abs_filename "$scriptDir/../config/argocd-ingress.yaml")
 cert_manager_yaml=$(get_abs_filename "$scriptDir/../config/cert-manager.yaml")
 kubeview_yaml=$(get_abs_filename "$scriptDir/../config/kubeview.yaml")
@@ -29,15 +30,12 @@ cluster_info_file=$(get_abs_filename "$scriptDir/../config/clusterinfo-$cluster_
 argocd_password=""
 
 declare -a kindk8sversions=(
-    "1.31.0;kindest/node:v1.31.0@sha256:53df588e04085fd41ae12de0c3fe4c72f7013bba32a20e7325357a1ac94ba865"
-    "1.30.4;kindest/node:v1.30.4@sha256:976ea815844d5fa93be213437e3ff5754cd599b040946b5cca43ca45c2047114"
-    "1.30.3;kindest/node:v1.30.3@sha256:bf91e1ef2f7d92bb7734b2b896b3dddea98f0496b34d96e37dd5d7df331b7e56"
-    "1.29.8;kindest/node:v1.29.8@sha256:d46b7aa29567e93b27f7531d258c372e829d7224b25e3fc6ffdefed12476d3aa"
-    "1.29.7;kindest/node:v1.29.7@sha256:f70ab5d833fca132a100c1f95490be25d76188b053f49a3c0047ff8812360baf"
-    "1.28.13;kindest/node:v1.28.13@sha256:45d319897776e11167e4698f6b14938eb4d52eb381d9e3d7a9086c16c69a8110"
-    "1.28.12;kindest/node:v1.28.12@sha256:fa0e48b1e83bb8688a5724aa7eebffbd6337abd7909ad089a2700bf08c30c6ea"
-    "1.27.16;kindest/node:v1.27.17@sha256:3fd82731af34efe19cd54ea5c25e882985bafa2c9baefe14f8deab1737d9fabe"
-    "1.26.15;kindest/node:v1.26.15@sha256:1cc15d7b1edd2126ef051e359bf864f37bbcf1568e61be4d2ed1df7a3e87b354"
+    "1.31.2;kindest/node:v1.31.2@sha256:18fbefc20a7113353c7b75b5c869d7145a6abd6269154825872dc59c1329912e"
+    "1.30.6;kindest/node:v1.30.6@sha256:b6d08db72079ba5ae1f4a88a09025c0a904af3b52387643c285442afb05ab994"
+    "1.29.10;kindest/node:v1.29.10@sha256:3b2d8c31753e6c8069d4fc4517264cd20e86fd36220671fb7d0a5855103aa84b"
+    "1.28.15;kindest/node:v1.28.15@sha256:a7c05c7ae043a0b8c818f5a06188bc2c4098f6cb59ca7d1856df00375d839251"
+    "1.27.16;kindest/node:v1.27.16@sha256:2d21a61643eafc439905e18705b8186f3296384750a835ad7a005dceb9546d20"
+    "1.26.15;kindest/node:v1.26.15@sha256:c79602a44b4056d7e48dc20f7504350f1e87530fe953428b792def00bc1076dd"
     "1.25.16;kindest/node:v1.25.16@sha256:6110314339b3b44d10da7d27881849a87e092124afab5956f2e10ecdb463b025"
 )
 
@@ -82,7 +80,8 @@ function print_help() {
     echo "  install-nyancat     alias: nyan,cat  Install Nyan-cat ArgoCD application"
     echo "  install-certmanager alias: icm       Install Cert-manager ArgoCD application"
     echo "  install-prometheus  alias: ip        Install Kube-prometheus-stack ArgoCD application"
-    echo "  install-kubeview    alias: ikv        Install Kubeview ArgoCD application"
+    echo "  install-kubeview    alias: ikv       Install Kubeview ArgoCD application"
+    echo "  install-opencost    alias: ioc       Install OpenCost ArgoCD application"
     echo "  list                alias: ls        Show kind clusters"
     echo "  details             alias: dt        Show details for a cluster"
     echo "  kubeconfig          alias: kc        Get kubeconfig for a cluster by name"
@@ -428,16 +427,18 @@ function create_cluster() {
     "
     echo -e "$clear"
 
-    install_nyancat=""
-    read -p "Install Nyan-cat ArgoCD application? (default: yes) (y/yes | n/no): " install_nyancat_new
-    if [ "$install_nyancat_new" == "yes" ] || [ "$install_nyancat_new" == "y" ] || [ "$install_nyancat_new" == "" ]; then
-        install_nyancat="yes"
-    else
-        install_nyancat="no"
-    fi
+    if [ "$install_argocd" == "yes" ]; then
+        install_nyancat=""
+        read -p "Install Nyan-cat ArgoCD application? (default: yes) (y/yes | n/no): " install_nyancat_new
+        if [ "$install_nyancat_new" == "yes" ] || [ "$install_nyancat_new" == "y" ] || [ "$install_nyancat_new" == "" ]; then
+            install_nyancat="yes"
+        else
+            install_nyancat="no"
+        fi
 
-    if [ "$install_nyancat" == "yes" ]; then
-        install_nyancat_application
+        if [ "$install_nyancat" == "yes" ]; then
+            install_nyancat_application
+        fi
     fi
 }
 
@@ -650,6 +651,28 @@ function install_kubeview() {
     echo -e "$yellow\nOpen the dashboard in your browser: http://localhost:59000"
 }
 
+function install_opencost() {
+    echo -e "$yellow
+    Installing OpenCost ArgoCD application
+    "
+    (kubectl apply -f $opencost_argo_app_yaml|| 
+    { 
+        echo -e "$red 
+        🛑 Could not install OpenCost ArgoCD application into cluster  ...
+        "
+        die
+    }) & spinner
+
+    echo -e "$yellow
+    ✅ Done installing OpenCost ArgoCD application
+    "
+
+    echo "OpenCost argocd application installed: yes" >> $cluster_info_file
+
+    echo -e "$yellow\nTo access the OpenCost dashboard, type: $red kubectl port-forward --namespace opencost service/opencost 9003 9090"
+    echo -e "$yellow\nOpen the dashboard in your browser: http://localhost:9090"
+}
+
 while (($#)); do
    case $1 in
         create|c) # create cluster
@@ -667,6 +690,10 @@ while (($#)); do
         install-nginx|in) # install nginx controller
             print_logo
             install_nginx_controller
+            exit;;
+        install-opencost|ioc) # install nginx controller
+            print_logo
+            install_opencost
             exit;;
         install-argocd|ia) # install argocd
             print_logo
