@@ -18,11 +18,11 @@ ingress:
     # kubernetes.io/ingress.class: nginx
     # kubernetes.io/tls-acme: "true"
   hosts:
-    - host: 192.168.1.91
+    - host: cat.klefstadhaugen8
       paths:
         - path: /
           pathType: Prefix
   tls:
   - secretName: nyan-cat-tls
     hosts:
-     - 192.168.1.91
+     - cat.klefstadhaugen8
