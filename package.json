@@ -24,7 +24,7 @@
   "homepage": "https://github.com/rogerwesterbo/nyan-cat#readme",
   "devDependencies": {
     "express": "^4.21.2",
-    "less": "^4.2.1",
-    "prettier": "^3.4.2"
+    "less": "^4.2.2",
+    "prettier": "^3.5.1"
   }
 }
