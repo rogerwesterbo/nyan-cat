@@ -9,7 +9,7 @@ spec:
   type: {{ .Values.service.type }}
   ipFamilies: 
   {{- range .Values.service.ipFamilies }}
-    - {{ . }}
+  - {{ . }}
   {{- end }}
   ports:
     - port: {{ .Values.service.port }}
