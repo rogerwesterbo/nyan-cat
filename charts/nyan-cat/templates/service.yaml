@@ -7,10 +7,10 @@ metadata:
 spec:
   ipFamilyPolicy: {{ .Values.service.networkfamiliy }}
   type: {{ .Values.service.type }}
-  ipFamilies: 
-  {{- range .Values.service.ipFamilies }}
-  - {{ . }}
-  {{- end }}
+  # ipFamilies: 
+  # {{- range .Values.service.ipFamilies }}
+  # - {{ . }}
+  # {{- end }}
   ports:
     - port: {{ .Values.service.port }}
       targetPort: {{ .Values.service.targetPort }}
