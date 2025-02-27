@@ -1,11 +1,11 @@
 FROM nginxinc/nginx-unprivileged:alpine
-WORKDIR /app
+WORKDIR /usr/share/nginx/html
 
 COPY src/nginx/http_prod.conf /etc/nginx/conf.d/default.conf
-COPY src/audio /app/audio
-COPY src/css /app/css
-COPY src/font /app/font
-COPY src/js /app/js
-COPY src/index.html /app/index.html
-COPY src/favicon.ico /app/favicon.ico
+COPY src/audio /usr/share/nginx/html/audio
+COPY src/css /usr/share/nginx/html/css
+COPY src/font /usr/share/nginx/html/font
+COPY src/js /usr/share/nginx/html/js
+COPY src/index.html /usr/share/nginx/html/index.html
+COPY src/favicon.ico /usr/share/nginx/html/favicon.ico
 
