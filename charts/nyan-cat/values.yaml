@@ -62,6 +62,7 @@ service:
   ipFamilies: 
     - IPv4
     - IPv6
+  annotations: {}
 
 # This block is for setting up the ingress for more information can be found here: https://kubernetes.io/docs/concepts/services-networking/ingress/
 ingress:

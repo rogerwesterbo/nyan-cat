@@ -4,6 +4,10 @@ metadata:
   name: {{ include "nyan-cat.fullname" . }}
   labels:
     {{- include "nyan-cat.labels" . | nindent 4 }}
+  annotations:
+    {{- with .Values.service.annotations }}
+    {{- toYaml . | nindent 4 }}
+    {{- end }}
 spec:
   ipFamilyPolicy: {{ .Values.service.networkfamiliy }}
   type: {{ .Values.service.type }}
