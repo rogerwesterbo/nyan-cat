@@ -123,3 +123,38 @@ nodeSelector: {}
 tolerations: []
 
 affinity: {}
+
+# This block is for setting up Gateway API HTTPRoute for more information can be found here: https://gateway-api.sigs.k8s.io/
+# Gateway API is the successor to Ingress, providing more expressive routing capabilities
+gatewayApi:
+  # Enable Gateway API HTTPRoute (set to true to use Gateway API instead of or alongside Ingress)
+  enabled: false
+  # Annotations to add to the HTTPRoute
+  annotations: {}
+  # Parent Gateway references - the Gateway(s) this HTTPRoute should attach to
+  parentRefs:
+    - name: my-gateway
+      # namespace: gateway-namespace  # Optional: namespace of the Gateway (if different from HTTPRoute)
+      # sectionName: https            # Optional: specific listener name on the Gateway
+      # port: 443                     # Optional: specific port on the Gateway
+  # Hostnames to match (optional - if omitted, matches all hostnames)
+  hostnames:
+    - localhost
+  # Routing rules (optional - defaults to path prefix "/" if omitted)
+  rules:
+    - matches:
+        - path:
+            type: PathPrefix
+            value: /
+      # Optional filters for request/response modification
+      # filters:
+      #   - type: RequestHeaderModifier
+      #     requestHeaderModifier:
+      #       add:
+      #         - name: X-Custom-Header
+      #           value: custom-value
+      # Optional backend references (defaults to the service if omitted)
+      # backendRefs:
+      #   - name: nyan-cat
+      #     port: 8080
+      #     weight: 100

@@ -1,5 +1,18 @@
 1. Get the application URL by running these commands:
-{{- if .Values.ingress.enabled }}
+{{- if .Values.gatewayApi.enabled }}
+Gateway API HTTPRoute is enabled. Your application is accessible through the Gateway.
+{{- range .Values.gatewayApi.hostnames }}
+  http://{{ . }}
+{{- end }}
+
+To check the HTTPRoute status:
+  kubectl get httproute {{ include "nyan-cat.fullname" . }} -n {{ .Release.Namespace }}
+
+To check the parent Gateway status:
+{{- range .Values.gatewayApi.parentRefs }}
+  kubectl get gateway {{ .name }} {{- if .namespace }} -n {{ .namespace }}{{- end }}
+{{- end }}
+{{- else if .Values.ingress.enabled }}
 {{- range $host := .Values.ingress.hosts }}
   {{- range .paths }}
   http{{ if $.Values.ingress.tls }}s{{ end }}://{{ $host.host }}{{ .path }}
