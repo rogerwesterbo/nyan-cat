@@ -27,10 +27,9 @@ jobs:
         include:
           - platform: linux/amd64
             arch: amd64
-          # Uncomment for ARM support (requires QEMU on private repos, or native runner on public repos)
-          # - platform: linux/arm64
-          #   arch: arm64
-          #   # runner: ubuntu-24.04-arm  # Use this instead of ubuntu-latest for public repos
+          - platform: linux/arm64
+            arch: arm64
+            runner: ubuntu-24.04-arm  # Use this instead of ubuntu-latest for public repos
     steps:
       - name: Checkout code
         uses: actions/checkout@v6
