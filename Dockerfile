@@ -8,4 +8,3 @@ COPY src/font /usr/share/nginx/html/font
 COPY src/js /usr/share/nginx/html/js
 COPY src/index.html /usr/share/nginx/html/index.html
 COPY src/favicon.ico /usr/share/nginx/html/favicon.ico
-
