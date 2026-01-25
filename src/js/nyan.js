@@ -1,4 +1,4 @@
-console.log("Nyan!");
+console.log('Nyan!');
 
 function cycleFrames(_nyanCat, _currentFrame) {
   _nyanCat.classList = [];
@@ -6,10 +6,8 @@ function cycleFrames(_nyanCat, _currentFrame) {
 }
 
 function replicateSparks(_sparksRow) {
-  const numberOfRowsToCoverEntireScreen = Math.ceil(
-    document.body.offsetHeight / _sparksRow.offsetHeight
-  );
-  const newSparksRows = document.createElement("div");
+  const numberOfRowsToCoverEntireScreen = Math.ceil(document.body.offsetHeight / _sparksRow.offsetHeight);
+  const newSparksRows = document.createElement('div');
 
   for (let a = 0; a < numberOfRowsToCoverEntireScreen - 1; a++) {
     newSparksRows.append(_sparksRow.cloneNode(true));
@@ -19,10 +17,10 @@ function replicateSparks(_sparksRow) {
 }
 
 (function () {
-  let nyanCat = document.getElementById("nyan-cat");
+  let nyanCat = document.getElementById('nyan-cat');
   let currentFrame = 1;
 
-  replicateSparks(document.getElementsByClassName("sparks-combo")[0]);
+  replicateSparks(document.getElementsByClassName('sparks-combo')[0]);
 
   setInterval(function () {
     currentFrame = (currentFrame % 6) + 1;
