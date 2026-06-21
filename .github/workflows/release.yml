@@ -32,7 +32,7 @@ jobs:
             runner: ubuntu-24.04-arm  # Use this instead of ubuntu-latest for public repos
     steps:
       - name: Checkout code
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
 
       # Uncomment for ARM support (QEMU emulation)
       # - name: Set up QEMU
@@ -89,7 +89,7 @@ jobs:
       version: ${{ steps.version.outputs.version }}
     steps:
       - name: Checkout code
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
 
       - name: Set up Helm
         uses: azure/setup-helm@v5.0.0
@@ -206,7 +206,7 @@ jobs:
         run: cosign sign --yes ${{ env.HELM_REGISTRY }}/nyan-cat:${{ needs.package-helm.outputs.version }}
 
       - name: Checkout code for Makefile
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
 
       - name: Generate container SBOM
         run: make sbom-container IMG=${{ env.IMAGE_NAME }}:${{ needs.package-helm.outputs.version }} SBOM_OUTPUT_DIR=.
