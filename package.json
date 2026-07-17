@@ -25,6 +25,6 @@
   "devDependencies": {
     "express": "^5.2.1",
     "less": "^4.6.7",
-    "prettier": "^3.9.4"
+    "prettier": "^3.9.5"
   }
 }
