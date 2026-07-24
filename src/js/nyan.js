@@ -17,6 +17,29 @@ function replicateSparks(_sparksRow) {
 }
 
 (function () {
+  const root = document.documentElement;
+  const toggle = document.getElementById('theme-toggle');
+  if (!toggle) return;
+
+  function render() {
+    const isLight = root.getAttribute('data-theme') === 'light';
+    // Show the mode the button switches TO: dark -> sun, light -> moon.
+    toggle.textContent = isLight ? '🌙' : '☀️';
+  }
+
+  toggle.addEventListener('click', function () {
+    const next = root.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
+    root.setAttribute('data-theme', next);
+    try {
+      localStorage.setItem('theme', next);
+    } catch (e) {}
+    render();
+  });
+
+  render();
+})();
+
+(function () {
   let nyanCat = document.getElementById('nyan-cat');
   let currentFrame = 1;
 
