@@ -7,7 +7,7 @@ metadata:
 spec:
   containers:
     - name: nyan-cat
-      image: rogerwesterbo/nyan-cat:0.0.8
+      image: ghcr.io/rogerwesterbo/nyan-cat:0.1.0
       ports:
         - containerPort: 8080
       volumeMounts:

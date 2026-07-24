@@ -30,7 +30,7 @@ docker build -f Dockerfile -t rogerwesterbo/nyan-cat:<0.0.11> .
 ```
 
 ```bash
-docker buildx build --platform=linux/amd64,linux/arm64,linux/arm/v7 -f Dockerfile -t rogerwesterbo/nyan-cat:<0.0.11>  --output type=registry,dest=rogerwesterbo/nyan-cat:<0.0.11>,push=true .
+docker buildx build --platform=linux/amd64,linux/arm64,linux/arm/v7 -f Dockerfile -t ghcr.io/rogerwesterbo/nyan-cat:<0.0.11>  --output type=registry,dest=rogerwesterbo/nyan-cat:<0.0.11>,push=true .
 ```
 
 # Create a kubernetes cluster
