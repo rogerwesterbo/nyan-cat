@@ -118,6 +118,23 @@ html[data-theme='light'] .audiocontrols {
   padding: 2px;
 }
 
+/* touch screens: bigger tap targets for the toggle and audio player */
+@media (pointer: coarse), (max-width: 600px) {
+  .theme-toggle {
+    width: 56px;
+    height: 56px;
+    border-radius: 12px;
+    font-size: 28px;
+  }
+
+  .audiocontrols audio {
+    display: block;
+    width: 70vw;
+    max-width: 340px;
+    height: 56px;
+  }
+}
+
 body {
   font:
     13px/1.4 Helvetica,
