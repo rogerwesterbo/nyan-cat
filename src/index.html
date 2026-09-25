@@ -22,8 +22,16 @@
   </head>
   <body>
     <button id="theme-toggle" class="theme-toggle" type="button" aria-label="Toggle light and dark mode">☀️</button>
+    <button id="game-toggle" class="theme-toggle game-toggle" type="button" aria-label="Quit the Nyan Cat game" title="Quit (Esc)">✖️</button>
+    <button id="game-pause" class="theme-toggle game-pause" type="button" aria-label="Pause the game" title="Pause (P)">⏸️</button>
+    <button id="game-launcher" class="game-launcher" type="button" aria-label="Play the Nyan Cat game">
+      <span class="game-launcher-icon">🎮</span>
+      <span class="game-launcher-title">Play Nyan Game</span>
+      <span id="game-launcher-legend" class="game-launcher-legend"></span>
+      <span id="game-launcher-hint" class="game-launcher-hint">click or press G</span>
+    </button>
     <div class="audiocontrols">
-      <audio autoplay controls>
+      <audio controls loop>
         <source src="audio/nyan-cat.ogg" type="audio/ogg" />
         <source src="audio/nyan-cat.mp3" type="audio/mpeg" />
         Your browser does not support the audio element.
@@ -36,26 +44,62 @@
       <div class="spark"></div>
     </div>
 
-    <div id="wave-a" class="hot rainbow"></div>
-    <div id="wave-a" class="cold rainbow"></div>
+    <canvas id="trail-canvas" aria-hidden="true"></canvas>
 
-    <div id="wave-b" class="hot rainbow"></div>
-    <div id="wave-b" class="cold rainbow"></div>
+    <div id="nyan-rig">
+      <div id="wave-a" class="hot rainbow"></div>
+      <div id="wave-a" class="cold rainbow"></div>
 
-    <div id="nyan-cat" class="frame1">
-      <div id="tail"></div>
+      <div id="wave-b" class="hot rainbow"></div>
+      <div id="wave-b" class="cold rainbow"></div>
 
-      <div id="paws"></div>
+      <div id="nyan-cat" class="frame1">
+        <div id="tail"></div>
 
-      <div id="pop-tarts-body">
-        <div id="pop-tarts-body-cream"></div>
+        <div id="paws"></div>
+
+        <div id="pop-tarts-body">
+          <div id="pop-tarts-body-cream"></div>
+        </div>
+
+        <div id="head">
+          <div id="face"></div>
+        </div>
       </div>
+    </div>
 
-      <div id="head">
-        <div id="face"></div>
+    <canvas id="game-canvas" aria-hidden="true"></canvas>
+
+    <div id="game-hud" class="game-hud" hidden>
+      <span id="game-score" class="game-score">0</span>
+      <span id="game-lives" class="game-lives"></span>
+      <span id="game-level" class="game-level"></span>
+    </div>
+
+    <div id="game-overlay" class="game-overlay" hidden>
+      <div class="game-panel" role="dialog" aria-labelledby="game-title">
+        <h1 id="game-title"></h1>
+        <p id="game-message"></p>
+        <div id="game-legend" class="game-legend"></div>
+        <div id="game-settings" class="game-settings">
+          <div id="game-difficulty-row" class="settings-row">
+            <span class="settings-label">Difficulty</span>
+            <div id="game-difficulty" class="segmented" role="group" aria-label="Difficulty"></div>
+          </div>
+          <div class="settings-row">
+            <span class="settings-label">Sound</span>
+            <button id="game-music" type="button" class="pill">🎵 Music</button>
+            <button id="game-sfx" type="button" class="pill">🔔 Effects</button>
+          </div>
+        </div>
+        <div class="game-buttons">
+          <button id="game-primary" type="button"></button>
+          <button id="game-quit" type="button">Quit</button>
+        </div>
       </div>
     </div>
 
     <script type="text/javascript" src="/js/nyan.js"></script>
+    <script type="text/javascript" src="/js/game.js"></script>
   </body>
 </html>
