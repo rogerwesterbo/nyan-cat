@@ -23,8 +23,8 @@
   },
   "homepage": "https://github.com/rogerwesterbo/nyan-cat#readme",
   "devDependencies": {
-    "express": "^5.2.1",
+    "express": "^5.3.0",
     "less": "^4.9.1",
-    "prettier": "^3.9.9"
+    "prettier": "^3.9.10"
   }
 }
