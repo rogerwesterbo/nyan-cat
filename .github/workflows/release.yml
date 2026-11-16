@@ -197,7 +197,7 @@ jobs:
           helm push /tmp/helm/nyan-cat-*.tgz oci://${{ env.HELM_REGISTRY }}
 
       - name: Install Cosign
-        uses: sigstore/cosign-installer@v4.1.2
+        uses: sigstore/cosign-installer@v4.1.3
 
       - name: Sign container image
         run: cosign sign --yes ${{ env.IMAGE_NAME }}:${{ needs.package-helm.outputs.version }}
